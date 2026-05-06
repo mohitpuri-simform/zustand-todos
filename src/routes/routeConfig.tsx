@@ -6,6 +6,7 @@ import DisplayTodoItem from "../pages/DisplayTodoItem";
 import HomePage from "../pages/HomePage";
 import NotFoundPage from "../pages/NotFoundPage";
 import TodoPage from "../pages/TodoPage";
+import CartPage from "../pages/CartPage";
 
 export interface RouteConfig {
   path?: string;
@@ -47,6 +48,11 @@ export const routes: RouteConfig[] = [
             isAuth: true,
           },
         ],
+      },
+      {
+        path: "cart",
+        element: CartPage,
+        isAuth: true,
       },
     ],
   },

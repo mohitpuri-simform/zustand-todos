@@ -3,13 +3,14 @@ import RenderTodo from "../components/RenderTodo";
 
 import { useSearchParams } from "react-router";
 import AddTodo from "../components/AddTodo";
-import { addTodo, useTodoStore } from "../store/todoStore";
+import { useTodoStore } from "../store/todoStore";
 
 function TodoPage() {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const todos = useTodoStore((state) => state.todos);
+  const addTodo = useTodoStore((state) => state.addTodo);
 
   const filteredTitle = searchParams.get("title")?.toLowerCase() ?? "";
 

@@ -1,6 +1,6 @@
 import type { Todo } from "../types";
 import { Link } from "react-router";
-import { deleteTodo } from "../store/todoStore";
+import { useTodoStore } from "../store/todoStore";
 
 interface RenderTodoProps {
   todo: Todo;
@@ -8,6 +8,12 @@ interface RenderTodoProps {
 }
 
 function RenderTodo({ todo, index }: RenderTodoProps) {
+  const isInCart = useTodoStore((state) =>
+    state.cartItems.some((cartTodo) => cartTodo.id === todo.id),
+  );
+  const addTodoToCart = useTodoStore((state) => state.addTodoToCart);
+  const removeTodoFromCart = useTodoStore((state) => state.removeTodoFromCart);
+  const deleteTodo = useTodoStore((state) => state.deleteTodo);
   return (
     <>
       <li className="p-4 border border-gray-300 rounded-md shadow-sm bg-gray-50">
@@ -31,6 +37,21 @@ function RenderTodo({ todo, index }: RenderTodoProps) {
           Status: {todo.isDone ? "Completed" : "Pending"}
         </p>
         <div className="flex gap-2 mt-1 ml-1">
+          {isInCart ? (
+            <button
+              className="px-3 py-1 text-sm bg-orange-500 text-white rounded hover:bg-orange-600"
+              onClick={() => removeTodoFromCart(todo.id)}
+            >
+              Remove from Cart
+            </button>
+          ) : (
+            <button
+              className="px-3 py-1 text-sm bg-indigo-500 text-white rounded hover:bg-indigo-600"
+              onClick={() => addTodoToCart(todo.id)}
+            >
+              Add to Cart
+            </button>
+          )}
           <button
             className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
             onClick={() => deleteTodo(todo.id)}

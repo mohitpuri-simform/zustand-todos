@@ -1,17 +1,13 @@
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router";
+import { useTodoStore } from "../store/todoStore";
 
 function Login() {
   const navigate = useNavigate();
+  const login = useTodoStore((state) => state.login);
   function handleFormSubmit(e: FormEvent) {
     e.preventDefault();
-    localStorage.setItem(
-      "token",
-      JSON.stringify({
-        email: "email",
-        pass: "pass",
-      })
-    );
+    login("email");
     navigate("/");
   }
 

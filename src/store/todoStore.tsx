@@ -1,56 +1,48 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
+import { createJSONStorage, persist } from "zustand/middleware";
+import { createAuthSlice } from "./slices/authSlice";
+import { createCartSlice } from "./slices/cartSlice";
+import { createTodoSlice } from "./slices/todoSlice";
+import type { AppStore } from "./slices/types";
 
-interface Todo {
-  id: number;
-  task: string;
-  createdAt: Date;
-  isDone: boolean;
-}
+export const useTodoStore = create<AppStore>()(
+  persist(
+    immer((...stateCreatorArgs) => ({
+      ...createAuthSlice(...stateCreatorArgs),
+      ...createTodoSlice(...stateCreatorArgs),
+      ...createCartSlice(...stateCreatorArgs),
+    })),
+    {
+      name: "app-store",
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        isAuthenticated: state.isAuthenticated,
+        userEmail: state.userEmail,
+        todos: state.todos,
+        cartItems: state.cartItems,
+      }),
+      merge: (persistedState, currentState) => {
+        const typedPersisted = persistedState as Partial<AppStore>;
 
-interface TodoStore {
-  todos: Todo[];
-}
-
-export const useTodoStore = create<TodoStore>()(
-  immer(() => ({
-    todos: [],
-  })),
+        return {
+          ...currentState,
+          ...typedPersisted,
+          todos:
+            typedPersisted.todos?.map((todo) => ({
+              ...todo,
+              createdAt: new Date(todo.createdAt),
+            })) ?? currentState.todos,
+          cartItems:
+            typedPersisted.cartItems?.map((todo) => ({
+              ...todo,
+              createdAt: new Date(todo.createdAt),
+            })) ?? currentState.cartItems,
+        };
+      },
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
+    },
+  ),
 );
-
-export const addTodo = (task: string) => {
-  useTodoStore.setState((state) => {
-    state.todos.push({
-      id: state.todos.length + 1,
-      task,
-      createdAt: new Date(),
-      isDone: false,
-    });
-  });
-};
-
-export const deleteTodo = (id: number) => {
-  useTodoStore.setState((state) => {
-    state.todos = state.todos.filter((todo) => todo.id !== id);
-  });
-};
-
-export const markAsDone = (id: number) => {
-  useTodoStore.setState((state) => {
-    const todo = state.todos.find((todo) => todo.id === id);
-    if (todo) todo.isDone = true;
-  });
-};
-
-export const editTodo = (id: number, task: string) => {
-  useTodoStore.setState((state) => {
-    const todo = state.todos.find((todo) => todo.id === id);
-    if (todo) todo.task = task;
-  });
-};
-
-export const filterByTitle = (task: string) => {
-  useTodoStore.setState((state) => {
-    state.todos = state.todos.filter((todo) => todo.task === task);
-  });
-};

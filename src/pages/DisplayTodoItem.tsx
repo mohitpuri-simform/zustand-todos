@@ -3,7 +3,7 @@ import { useParams } from "react-router";
 import type { Todo } from "../types";
 
 import ActionButtonWrapper from "../components/ActionButtonWrapper";
-import { editTodo, markAsDone, useTodoStore } from "../store/todoStore";
+import { useTodoStore } from "../store/todoStore";
 
 type Params = {
   id: string;
@@ -13,6 +13,9 @@ function DisplayTodoItem() {
   const params = useParams<Params>();
   const [isEditing, setIsEditing] = useState(false);
   const editRef = useRef<HTMLInputElement>(null);
+  const editTodo = useTodoStore((state) => state.editTodo);
+  const markAsDone = useTodoStore((state) => state.markAsDone);
+
   function handleInputBlur(todo: Todo) {
     setIsEditing(false);
     editTodo(todo.id, editRef.current?.value || todo.task);
